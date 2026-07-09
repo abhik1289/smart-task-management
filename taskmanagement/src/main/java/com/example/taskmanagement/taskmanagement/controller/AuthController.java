@@ -1,0 +1,80 @@
+package com.example.taskmanagement.taskmanagement.controller;
+
+import com.example.taskmanagement.taskmanagement.dto.ActiveAccountRequest;
+import com.example.taskmanagement.taskmanagement.dto.LoginRequest;
+import com.example.taskmanagement.taskmanagement.dto.LoginResponse;
+import com.example.taskmanagement.taskmanagement.dto.RegistrationRequest;
+import com.example.taskmanagement.taskmanagement.dto.response.ActiveAccountResponse;
+import com.example.taskmanagement.taskmanagement.dto.response.ApiResponse;
+import com.example.taskmanagement.taskmanagement.dto.response.AuthResponse;
+import com.example.taskmanagement.taskmanagement.dto.response.UserResponse;
+import com.example.taskmanagement.taskmanagement.service.AuthService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+
+@Slf4j
+@RestController
+@RequestMapping("/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    @PostMapping("/login")
+    ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        AuthResponse authResponse = authService.login(loginRequest);
+
+        ApiResponse<AuthResponse> apiResponse = ApiResponse.<AuthResponse>builder()
+                .success(true)
+                .message("login successful")
+                .data(authResponse)
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/sign-up")
+    ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegistrationRequest req) {
+
+        UserResponse response = authService.registrationWithCredentials(req);
+
+        log.info("Response Email:::---> {}", response.getEmail());
+
+        ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder()
+                .success(true)
+                .message("registration successful")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+    }
+
+    @PostMapping("/activate/{userEmail}")
+    ResponseEntity<ApiResponse<ActiveAccountResponse>>
+    activateUser(@PathVariable String userEmail,@Valid @RequestBody ActiveAccountRequest otp) {
+
+
+
+
+        ActiveAccountResponse response = authService.activeAccount(userEmail,otp);
+
+        ApiResponse<ActiveAccountResponse> apiResponse = ApiResponse.<ActiveAccountResponse>builder()
+                .success(true)
+                .message("active successful")
+                .data(response)
+                .timestamp(Instant.now())
+                .build();
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+
+    }
+}
