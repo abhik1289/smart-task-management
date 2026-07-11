@@ -21,7 +21,7 @@ public interface WorkSpaceMemberRepository extends JpaRepository<WorkspaceMember
 
     boolean existsByWorkspaceIdAndUserIdAndRole(Long workspaceId, Long userId, WorkspaceRole role);
 
-    Workspace update
+//    Workspace update
 
 
 }

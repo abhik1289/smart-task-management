@@ -1,16 +1,19 @@
 package com.example.taskmanagement.taskmanagement.entity;
 
-
 import com.example.taskmanagement.taskmanagement.entity.enums.Priority;
 import com.example.taskmanagement.taskmanagement.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

@@ -209,28 +209,28 @@ public class WorkSpaceController {
 
     }
 
-     @PatchMapping("/{workspaceId}/members/{userId}/remove")
-     public ResponseEntity inviteMember(@CurrentUser User user, @PathVariable Long userId) {
+//     @PatchMapping("/{workspaceId}/members/{userId}/remove")
+//     public ResponseEntity inviteMember(@CurrentUser User user, @PathVariable Long userId) {
+//
+//        Long uerId  = user.getId();
+//
+////        workSpaceService.r
+//
+//
+//
+//     }
+//    //
+//     @PatchMapping("/{workspaceId}/members/{userId}/leave")
+//     public ResponseEntity inviteMember() {
+//
+//     }
 
-        Long uerId  = user.getId();
-
-        workSpaceService.r
-
-
-
-     }
-    //
-     @PatchMapping("/{workspaceId}/members/{userId}/leave")
-     public ResponseEntity inviteMember() {
-
-     }
-
-     @PutMapping("/{workspaceId}")
-    public ResponseEntity updateWorkSpce(@PathVariable Long workspaceId, @RequestBody WorkSpaceRequest workSpaceRequest) {
-
-
-
-     }
+//     @PutMapping("/{workspaceId}")
+//    public ResponseEntity updateWorkSpce(@PathVariable Long workspaceId, @RequestBody WorkSpaceRequest workSpaceRequest) {
+//
+//
+//
+//     }
     //
 
 }

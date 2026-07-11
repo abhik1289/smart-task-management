@@ -225,17 +225,17 @@ public class WorkSpaceService {
         return workSpaceMemberRepository.save(workspaceMember);
     }
 
-    @Transactional
-    public Workspace updateWorkspace(Long userId, Long workSpaceId, Workspace workspace) {
-
-
-        validateOwner(userId, workSpaceId);
-
-        String title = workspace.getName().trim();
-        String description = !workspace.getDescription().isBlank() ? workspace.getDescription() : "";
-
-
-
-    }
+//    @Transactional
+//    public Workspace updateWorkspace(Long userId, Long workSpaceId, Workspace workspace) {
+//
+//
+//        validateOwner(userId, workSpaceId);
+//
+//        String title = workspace.getName().trim();
+//        String description = !workspace.getDescription().isBlank() ? workspace.getDescription() : "";
+//
+//
+//
+//    }
 
 }

@@ -72,6 +72,18 @@ export default function HomePage() {
             }}>
             Create account
           </Link>
+          <Link
+            to="/profile"
+            style={{
+              padding: "12px 18px",
+              borderRadius: "999px",
+              border: "1px solid #cbd5e1",
+              color: "#0f172a",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}>
+            Profile
+          </Link>
         </div>
       </section>
     </main>

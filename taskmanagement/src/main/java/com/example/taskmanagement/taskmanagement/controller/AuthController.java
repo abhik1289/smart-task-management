@@ -2,7 +2,7 @@ package com.example.taskmanagement.taskmanagement.controller;
 
 import com.example.taskmanagement.taskmanagement.dto.ActiveAccountRequest;
 import com.example.taskmanagement.taskmanagement.dto.LoginRequest;
-import com.example.taskmanagement.taskmanagement.dto.LoginResponse;
+import com.example.taskmanagement.taskmanagement.dto.RefreshTokenRequest;
 import com.example.taskmanagement.taskmanagement.dto.RegistrationRequest;
 import com.example.taskmanagement.taskmanagement.dto.response.ActiveAccountResponse;
 import com.example.taskmanagement.taskmanagement.dto.response.ApiResponse;
@@ -58,23 +58,45 @@ public class AuthController {
     }
 
     @PostMapping("/activate/{userEmail}")
-    ResponseEntity<ApiResponse<ActiveAccountResponse>>
-    activateUser(@PathVariable String userEmail,@Valid @RequestBody ActiveAccountRequest otp) {
+    public ResponseEntity<ApiResponse<ActiveAccountResponse>> activateUser(@PathVariable String userEmail,
+            @Valid @RequestBody ActiveAccountRequest otp) {
 
-
-
-
-        ActiveAccountResponse response = authService.activeAccount(userEmail,otp);
+        ActiveAccountResponse response = authService.activeAccount(userEmail, otp);
 
         ApiResponse<ActiveAccountResponse> apiResponse = ApiResponse.<ActiveAccountResponse>builder()
                 .success(true)
-                .message("active successful")
+                .message("activation successful")
                 .data(response)
                 .timestamp(Instant.now())
                 .build();
 
-
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
 
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse authResponse = authService.refreshToken(request);
+
+        ApiResponse<AuthResponse> apiResponse = ApiResponse.<AuthResponse>builder()
+                .success(true)
+                .message("token refreshed")
+                .data(authResponse)
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request);
+
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                .success(true)
+                .message("logout successful")
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 }

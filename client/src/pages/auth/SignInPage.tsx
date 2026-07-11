@@ -2,11 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "../../components/common/Button";
 import { FormCard } from "../../components/common/FormCard";
 import { InputField } from "../../components/common/InputField";
+import { login } from "../../api/auth";
 
 const signInSchema = z.object({
   email: z
@@ -28,8 +29,16 @@ export default function SignInPage() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = (data: SignInValues) => {
-    console.info("Sign in submitted", data);
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: SignInValues) => {
+    try {
+      await login(data);
+      navigate("/");
+    } catch (error) {
+      console.error("Sign in failed", error);
+      alert("Sign in failed. Please check your credentials and try again.");
+    }
   };
 
   return (

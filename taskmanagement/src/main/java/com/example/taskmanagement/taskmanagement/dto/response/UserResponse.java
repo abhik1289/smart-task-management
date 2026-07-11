@@ -1,6 +1,5 @@
 package com.example.taskmanagement.taskmanagement.dto.response;
 
-
 import com.example.taskmanagement.taskmanagement.entity.User;
 import com.example.taskmanagement.taskmanagement.entity.enums.Provider;
 import com.example.taskmanagement.taskmanagement.entity.enums.Roles;
@@ -25,6 +24,7 @@ public class UserResponse {
     private Provider provider;
 
     private boolean emailVerified;
+    private String imageUrl;
 
     private LocalDateTime createdAt;
 

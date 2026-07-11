@@ -13,15 +13,12 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-
-//    List<Task> findAllByAssignToId(Long id);
+    // List<Task> findAllByAssignToId(Long id);
 
     Page<Task> findAllByAssignToIdAndWorkspaceId(Pageable pageable, Long userId, Long workspaceId);
 
-    @Query("")
     Page<Task> findAllByWorkspaceId(Pageable pageable, Long workspaceId);
 
-    Page<Task> findAllByWorkspaceIdAndComplete(Long workspaceId, boolean complete);
-
+    Page<Task> findAllByWorkspaceIdAndCompleted(Long workspaceId, boolean completed, Pageable pageable);
 
 }

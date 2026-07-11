@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { signUp } from "../../api/auth";
 import { Button } from "../../components/common/Button";
 import { FormCard } from "../../components/common/FormCard";
 import { InputField } from "../../components/common/InputField";
@@ -40,8 +41,20 @@ export default function SignUpPage() {
     },
   });
 
-  const onSubmit = (data: SignUpValues) => {
-    console.info("Sign up submitted", data);
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: SignUpValues) => {
+    try {
+      await signUp({
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+      });
+      navigate("/activation");
+    } catch (error) {
+      console.error("Sign up failed", error);
+      alert("Sign up failed. Please verify your information and try again.");
+    }
   };
 
   return (
