@@ -2,10 +2,10 @@
 
 import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/common/Button";
-import { FormCard } from "../../components/common/FormCard";
-import { InputField } from "../../components/common/InputField";
-import { activateAccount } from "../../api/auth";
+import { Button } from "@/components/common/Button";
+import { FormCard } from "@/components/common/FormCard";
+import { InputField } from "@/components/common/InputField";
+import { activateAccount } from "@/api/auth";
 
 export default function ActivationPage() {
   const [otp, setOtp] = useState("");

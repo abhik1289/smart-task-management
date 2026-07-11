@@ -4,9 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Button } from "../../components/common/Button";
-import { FormCard } from "../../components/common/FormCard";
-import { InputField } from "../../components/common/InputField";
+import { Button } from "@/components/common/Button";
+import { FormCard } from "@/components/common/FormCard";
+import { InputField } from "@/components/common/InputField";
 import { login } from "../../api/auth";
 
 const signInSchema = z.object({

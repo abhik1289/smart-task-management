@@ -4,9 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
-import { Button } from "../../components/common/Button";
-import { FormCard } from "../../components/common/FormCard";
-import { InputField } from "../../components/common/InputField";
+import { Button } from "@/components/ui/button";
+import { FormCard } from "@/components/common/FormCard";
+import { InputField } from "@/components/common/InputField";
+// import { Button } from "";
 
 const changePasswordSchema = z
   .object({
@@ -58,7 +59,7 @@ export default function ChangePasswordPage() {
           error={errors.confirmPassword?.message}
         />
 
-        <Button type="submit" fullWidth disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Updating..." : "Change password"}
         </Button>
       </form>
