@@ -1,8 +1,5 @@
 import * as React from "react";
-
-import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -14,9 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboardIcon,
   ListIcon,
-  ChartBarIcon,
   FolderIcon,
   UsersIcon,
   CameraIcon,
@@ -29,6 +24,7 @@ import {
   FileIcon,
   CommandIcon,
 } from "lucide-react";
+import { HomeIcon, UserIcon } from "lucide-react";
 
 const data = {
   user: {
@@ -38,29 +34,29 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Home",
       url: "#",
-      icon: <LayoutDashboardIcon />,
+      icon: <HomeIcon />,
     },
     {
-      title: "Lifecycle",
+      title: "Members",
       url: "#",
-      icon: <ListIcon />,
+      icon: <UsersIcon />,
     },
     {
-      title: "Analytics",
+      title: "Profile",
       url: "#",
-      icon: <ChartBarIcon />,
+      icon: <UserIcon />,
     },
     {
-      title: "Projects",
-      url: "#",
+      title: "Workspace",
+      url: "/workspaces",
       icon: <FolderIcon />,
     },
     {
-      title: "Team",
+      title: "Tasks",
       url: "#",
-      icon: <UsersIcon />,
+      icon: <ListIcon />,
     },
   ],
   navClouds: [
@@ -163,8 +159,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* <NavDocuments items={data.documents} /> */}
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

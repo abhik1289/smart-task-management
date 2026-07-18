@@ -5,9 +5,11 @@ import com.example.taskmanagement.taskmanagement.entity.User;
 import com.example.taskmanagement.taskmanagement.entity.Workspace;
 import com.example.taskmanagement.taskmanagement.entity.WorkspaceMember;
 import com.example.taskmanagement.taskmanagement.entity.enums.JoiningStatus;
+import com.example.taskmanagement.taskmanagement.entity.enums.NotificationType;
 import com.example.taskmanagement.taskmanagement.entity.enums.WorkspaceRole;
 import com.example.taskmanagement.taskmanagement.exception.BadException;
 import com.example.taskmanagement.taskmanagement.exception.UserNotFoundException;
+import com.example.taskmanagement.taskmanagement.repository.TaskRepository;
 import com.example.taskmanagement.taskmanagement.repository.UserRepository;
 import com.example.taskmanagement.taskmanagement.repository.WorkSpaceMemberRepository;
 import com.example.taskmanagement.taskmanagement.repository.WorkSpaceRepository;
@@ -29,8 +31,10 @@ public class WorkSpaceService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final WorkSpaceRepository workSpaceRepository;
+    private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final WorkSpaceMemberRepository workSpaceMemberRepository;
+    private final NotificationService notificationService;
 
     public List<Workspace> findAllByOwnerId(Long ownerId) {
         return workSpaceRepository.findAllByOwnerId(ownerId);
@@ -99,8 +103,33 @@ public class WorkSpaceService {
         return sb.toString();
     }
 
-    public void deleteWorkspace(Long id) {
-        // TODO: implement delete workspace flow
+    /** Update the workspace name and description. Only its owner can update it. */
+    @Transactional
+    public Workspace updateWorkspace(Long workspaceId, Long ownerId, WorkSpaceRequest request) {
+        validateOwner(ownerId, workspaceId);
+
+        Workspace workspace = findById(workspaceId);
+        String name = request.getName().trim();
+
+        if (workSpaceRepository.existsByNameIgnoreCaseAndOwnerIdAndIdNot(name, ownerId, workspaceId)) {
+            throw new BadException("You already have a workspace with this name");
+        }
+
+        workspace.setName(name);
+        workspace.setDescription(cleanDescription(request.getDescription()));
+        return workSpaceRepository.save(workspace);
+    }
+
+    /** Delete the workspace and its members. Only its owner can delete it. */
+    @Transactional
+    public void deleteWorkspace(Long workspaceId, Long ownerId) {
+        validateOwner(ownerId, workspaceId);
+        taskRepository.deleteAllByWorkspaceId(workspaceId);
+        workSpaceRepository.delete(findById(workspaceId));
+    }
+
+    private String cleanDescription(String description) {
+        return description == null || description.isBlank() ? null : description.trim();
     }
 
     /**
@@ -144,7 +173,22 @@ public class WorkSpaceService {
                 .joiningStatus(JoiningStatus.INVITED)
                 .build();
 
-        return workSpaceMemberRepository.save(workspaceMember);
+        WorkspaceMember saved = workSpaceMemberRepository.save(workspaceMember);
+
+        User inviter = userRepository.findById(inviterId).orElse(null);
+        String inviterName = inviter != null ? inviter.getName() : "Someone";
+        String message = String.format("%s invited you to join workspace '%s'",
+                inviterName, workspace.getName());
+
+        notificationService.push(
+                invitee.getId(),
+                inviterId,
+                NotificationType.WORKSPACE_INVITATION,
+                message,
+                workspace.getId(),
+                "WORKSPACE");
+
+        return saved;
     }
 
     @Transactional

@@ -45,15 +45,15 @@ public class Task {
 
     private LocalDateTime dueDate;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY )
     @JoinColumn(name = "assign_by")
     private User assignBy;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assign_to")
     private User assignTo;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
 
@@ -63,7 +63,7 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime assignDate;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime completedDate;
 
     @CreationTimestamp

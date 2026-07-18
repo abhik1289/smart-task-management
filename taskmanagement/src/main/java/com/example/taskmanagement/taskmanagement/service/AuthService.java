@@ -41,6 +41,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Transactional
     public AuthResponse login(LoginRequest loginRequest) {
@@ -136,6 +137,8 @@ public class AuthService {
 
         log.info("USER::------>", savedUser);
 
+        emailService.sendActivationEmail(savedUser.getEmail(), savedUser.getName(), savedUser.getActivationCode());
+
         return UserResponse.builder()
                 .id(savedUser.getId())
                 .name(savedUser.getName())
@@ -145,6 +148,25 @@ public class AuthService {
                 .emailVerified(savedUser.isEmailVerified())
                 .createdAt(savedUser.getCreatedAt())
                 .build();
+    }
+
+    @Transactional
+    public void resendActivationCode(String email) {
+        String refractorEmail = email.trim().toLowerCase();
+        User user = findUserByEmail(refractorEmail);
+
+        if (user.isEmailVerified()) {
+            throw new BadException("Account already verified");
+        }
+
+        SecureRandom random = new SecureRandom();
+        int otp = 100000 + random.nextInt(900000);
+
+        user.setActivationCode(otp);
+        user.setActivationCodeExpiresAt(LocalDateTime.now().plusMinutes(10));
+        userRepository.save(user);
+
+        emailService.sendActivationEmail(user.getEmail(), user.getName(), user.getActivationCode());
     }
 
     @Transactional

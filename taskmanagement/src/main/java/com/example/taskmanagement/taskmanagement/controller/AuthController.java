@@ -73,6 +73,19 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
+    @PostMapping("/resend-activation/{userEmail}")
+    public ResponseEntity<ApiResponse<Void>> resendActivation(@PathVariable String userEmail) {
+        authService.resendActivationCode(userEmail);
+
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                .success(true)
+                .message("activation code resent")
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         AuthResponse authResponse = authService.refreshToken(request);

@@ -13,7 +13,7 @@ public interface WorkSpaceRepository extends JpaRepository<Workspace, Long> {
 
     boolean existsByNameIgnoreCaseAndOwnerId(String name, Long ownerId);
 
-    boolean existsByIdAndOwnerIdAndNameNot(Long id, Long ownerId, String name);
+    boolean existsByNameIgnoreCaseAndOwnerIdAndIdNot(String name, Long ownerId, Long id);
 
     boolean existsByJoinCode(String joinCode);
 

@@ -61,6 +61,43 @@ public class WorkSpaceController {
                 .body(apiResponse);
     }
 
+    @PutMapping("/{workspaceId}")
+    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+    public ResponseEntity<ApiResponse<WorkSpaceResponse>> updateWorkspace(
+            @PathVariable Long workspaceId,
+            @Valid @RequestBody WorkSpaceRequest request,
+            @CurrentUser User currentUser) {
+
+        Workspace workspace = workSpaceService.updateWorkspace(workspaceId, currentUser.getId(), request);
+        WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
+
+        ApiResponse<WorkSpaceResponse> response = ApiResponse.<WorkSpaceResponse>builder()
+                .success(true)
+                .message("Workspace updated")
+                .data(body)
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{workspaceId}")
+    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+    public ResponseEntity<ApiResponse<Void>> deleteWorkspace(
+            @PathVariable Long workspaceId,
+            @CurrentUser User currentUser) {
+
+        workSpaceService.deleteWorkspace(workspaceId, currentUser.getId());
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(true)
+                .message("Workspace deleted")
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkSpaceResponse>> getWorkSpace(@PathVariable String
                                                                                id) {
