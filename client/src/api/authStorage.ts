@@ -1,6 +1,6 @@
-const ACCESS_TOKEN_KEY = "auth_access_token";
-const REFRESH_TOKEN_KEY = "auth_refresh_token";
-const ACTIVATION_EMAIL_KEY = "auth_activation_email";
+export const ACCESS_TOKEN_KEY = "auth_access_token";
+export const REFRESH_TOKEN_KEY = "auth_refresh_token";
+export const ACTIVATION_EMAIL_KEY = "auth_activation_email";
 
 export function getAccessToken(): string | null {
   return typeof window === "undefined"

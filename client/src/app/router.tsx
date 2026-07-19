@@ -12,6 +12,10 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import MemberPage from "@/pages/MemberPage";
 import TaskPage from "@/pages/TaskPage";
 import WorkspacePage from "@/pages/WorkspacePage";
+import {
+  RedirectAuthenticatedUser,
+  RequireAuth,
+} from "@/components/auth-route-guards";
 
 export const router = createBrowserRouter([
   {
@@ -20,27 +24,36 @@ export const router = createBrowserRouter([
     errorElement: <div>404</div>,
     children: [
       {
-        path: "",
-
-        element: <DashboardLayout />,
+        element: <RequireAuth />,
         children: [
-          { index: true, element: <HomePage /> },
-          { path: "profile", element: <ProfilePage /> },
-          { path: "members", element: <MemberPage /> },
-          { path: "dashboard", element: <ProfilePage /> },
-          { path: "task", element: <TaskPage /> },
-          { path: "workspaces", element: <WorkspacePage /> },
+          {
+            path: "",
+            element: <DashboardLayout />,
+            children: [
+              { index: true, element: <HomePage /> },
+              { path: "profile", element: <ProfilePage /> },
+              { path: "members", element: <MemberPage /> },
+              { path: "dashboard", element: <ProfilePage /> },
+              { path: "task", element: <TaskPage /> },
+              { path: "workspaces", element: <WorkspacePage /> },
+            ],
+          },
         ],
       },
       {
-        path: "",
-        element: <AuthLayout />,
+        element: <RedirectAuthenticatedUser />,
         children: [
-          { path: "sign-in", element: <SignInPage /> },
-          { path: "sign-up", element: <SignUpPage /> },
-          { path: "activate", element: <ActivationPage /> },
-          { path: "forgot-password", element: <ForgotPasswordPage /> },
-          { path: "change-password", element: <ChangePasswordPage /> },
+          {
+            path: "",
+            element: <AuthLayout />,
+            children: [
+              { path: "sign-in", element: <SignInPage /> },
+              { path: "sign-up", element: <SignUpPage /> },
+              { path: "activate", element: <ActivationPage /> },
+              { path: "forgot-password", element: <ForgotPasswordPage /> },
+              { path: "change-password", element: <ChangePasswordPage /> },
+            ],
+          },
         ],
       },
     ],
