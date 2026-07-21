@@ -1,7 +1,10 @@
 package com.example.taskmanagement.taskmanagement.controller;
 
+import com.example.taskmanagement.taskmanagement.dto.TaskRequest;
 import com.example.taskmanagement.taskmanagement.dto.response.ApiResponse;
 import com.example.taskmanagement.taskmanagement.entity.Task;
+import com.example.taskmanagement.taskmanagement.entity.User;
+import com.example.taskmanagement.taskmanagement.security.CurrentUser;
 import com.example.taskmanagement.taskmanagement.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,5 +62,35 @@ public class TaskController {
                 .build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/workspace/{workspaceId}")
+    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+    public ResponseEntity<String> createTask(
+            @PathVariable Long workspaceId,
+            @Valid @RequestBody TaskRequest request,
+            @CurrentUser User currentUser) {
+
+        Task task = taskService.createTask(workspaceId, request, currentUser);
+        return ResponseEntity.ok("Task assigned successfully");
+    }
+
+    @PatchMapping("/{taskId}/complete")
+    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+    public ResponseEntity<ApiResponse<Task>> completeTask(
+            @PathVariable Long taskId,
+            @CurrentUser User currentUser) {
+
+        Task task = taskService.completeTask(taskId, currentUser);
+        return ResponseEntity.ok(response("Task completed and assigner notified", task));
+    }
+
+    private ApiResponse<Task> response(String message, Task task) {
+        return ApiResponse.<Task>builder()
+                .success(true)
+                .message(message)
+                .data(task)
+                .timestamp(Instant.now())
+                .build();
     }
 }

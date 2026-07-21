@@ -8,6 +8,14 @@ import SignUpPage from "../pages/auth/SignUpPage";
 import ActivationPage from "../pages/auth/ActivationPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ChangePasswordPage from "../pages/auth/ChangePasswordPage";
+import DashboardLayout from "@/layouts/dashboard-layout";
+import MemberPage from "@/pages/MemberPage";
+import TaskPage from "@/pages/TaskPage";
+import WorkspacePage from "@/pages/WorkspacePage";
+import {
+  RedirectAuthenticatedUser,
+  RequireAuth,
+} from "@/components/auth-route-guards";
 
 export const router = createBrowserRouter([
   {
@@ -15,18 +23,45 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <div>404</div>,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "profile", element: <ProfilePage /> },
-      { path: "dashboard", element: <ProfilePage /> },
       {
-        path: "",
-        element: <AuthLayout />,
+        element: <RequireAuth />,
         children: [
-          { path: "sign-in", element: <SignInPage /> },
-          { path: "sign-up", element: <SignUpPage /> },
-          { path: "activate", element: <ActivationPage /> },
-          { path: "forgot-password", element: <ForgotPasswordPage /> },
-          { path: "change-password", element: <ChangePasswordPage /> },
+          {
+            path: "",
+            element: <DashboardLayout />,
+            children: [
+              { index: true, element: <HomePage /> },
+              { path: "profile", element: <ProfilePage /> },
+              { path: "members", element: <MemberPage /> },
+              { path: "dashboard", element: <ProfilePage /> },
+              { path: "task", element: <TaskPage /> },
+              { path: "workspaces", element: <WorkspacePage /> },
+              {
+                path: "workspaces/:workspaceId/tasks",
+                element: <TaskPage />,
+              },
+              {
+                path: "workspaces/:workspaceId/members",
+                element: <MemberPage />,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        element: <RedirectAuthenticatedUser />,
+        children: [
+          {
+            path: "",
+            element: <AuthLayout />,
+            children: [
+              { path: "sign-in", element: <SignInPage /> },
+              { path: "sign-up", element: <SignUpPage /> },
+              { path: "activate", element: <ActivationPage /> },
+              { path: "forgot-password", element: <ForgotPasswordPage /> },
+              { path: "change-password", element: <ChangePasswordPage /> },
+            ],
+          },
         ],
       },
     ],

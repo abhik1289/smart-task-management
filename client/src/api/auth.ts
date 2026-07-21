@@ -24,7 +24,10 @@ export interface AuthResponse {
 }
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
-  const response = await api.post("/auth/login", payload);
+  const response = await api.post("/auth/login", {
+    email: payload.email.trim().toLowerCase(),
+    password: payload.password,
+  });
   const result = response.data?.data as AuthResponse;
   saveAuthTokens(result.access_token, result.refresh_token);
   return result;

@@ -2,6 +2,7 @@ package com.example.taskmanagement.taskmanagement.repository;
 
 import com.example.taskmanagement.taskmanagement.entity.Workspace;
 import com.example.taskmanagement.taskmanagement.entity.WorkspaceMember;
+import com.example.taskmanagement.taskmanagement.entity.enums.JoiningStatus;
 import com.example.taskmanagement.taskmanagement.entity.enums.WorkspaceRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +13,9 @@ import java.util.Optional;
 
 public interface WorkSpaceMemberRepository extends JpaRepository<WorkspaceMember, Long> {
 
-
     Optional<WorkspaceMember> findByWorkspaceIdAndUserId(Long workspaceId, Long ownerId);
+
+    List<WorkspaceMember> findAllByUserIdAndJoiningStatus(Long userId, JoiningStatus joiningStatus);
 
     Page<WorkspaceMember> findAllByWorkspaceId(Pageable pageable, Long workspaceId);
 
@@ -21,7 +23,6 @@ public interface WorkSpaceMemberRepository extends JpaRepository<WorkspaceMember
 
     boolean existsByWorkspaceIdAndUserIdAndRole(Long workspaceId, Long userId, WorkspaceRole role);
 
-//    Workspace update
-
+    // Workspace update
 
 }

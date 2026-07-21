@@ -1,58 +1,30 @@
+function isPublicAuthRequest(url?: string) {
+  return (
+    !!url &&
+    (url.includes("/auth/login") ||
+      url.includes("/auth/sign-up") ||
+      url.includes("/auth/activate") ||
+      url.includes("/auth/refresh-token"))
+  );
+}
+
 import axios from "axios";
 import {
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
   clearAuthTokens,
-  getAccessToken,
   getRefreshToken,
   saveAuthTokens,
 } from "./authStorage";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
-const authApi = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-export async function refreshAccessToken(): Promise<string> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    throw new Error("Missing refresh token");
-  }
-
-  const response = await authApi.post("/auth/refresh-token", {
-    refreshToken,
-  });
-
-  const authResponse = response.data?.data;
-  if (!authResponse?.access_token || !authResponse?.refresh_token) {
-    throw new Error("Invalid refresh response");
-  }
-
-  saveAuthTokens(authResponse.access_token, authResponse.refresh_token);
-  return authResponse.access_token;
-}
-
 const api = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "http://localhost:8080",
+  withCredentials: true,
 });
-
-function isPublicAuthRequest(url?: string) {
-  return !!url && (
-    url.includes("/auth/login") ||
-    url.includes("/auth/sign-up") ||
-    url.includes("/auth/activate") ||
-    url.includes("/auth/refresh-token")
-  );
-}
 
 api.interceptors.request.use((config) => {
-  const accessToken = getAccessToken();
-  if (accessToken && config.headers && !isPublicAuthRequest(config.url)) {
+  const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (accessToken && !isPublicAuthRequest(config.url)) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
@@ -61,22 +33,41 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const original = error.config;
+    const refreshToken = getRefreshToken();
+
     if (
       error.response?.status === 401 &&
-      !originalRequest?._retry &&
-      !isPublicAuthRequest(originalRequest.url)
+      original &&
+      !original._retry &&
+      !isPublicAuthRequest(original.url) &&
+      refreshToken
     ) {
-      originalRequest._retry = true;
       try {
-        const newAccessToken = await refreshAccessToken();
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
+        original._retry = true;
+        const response = await api.post("/auth/refresh-token", {
+          refreshToken,
+        });
+        const tokens = response.data.data as {
+          access_token: string;
+          refresh_token: string;
+        };
+
+        saveAuthTokens(tokens.access_token, tokens.refresh_token);
+        original.headers.Authorization = `Bearer ${tokens.access_token}`;
+        return api(original);
       } catch (refreshError) {
         clearAuthTokens();
+        window.location.assign("/sign-in");
         return Promise.reject(refreshError);
       }
     }
+
+    if (error.response?.status === 401 && !isPublicAuthRequest(original?.url)) {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
+
     return Promise.reject(error);
   },
 );
