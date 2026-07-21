@@ -36,6 +36,14 @@ export const router = createBrowserRouter([
               { path: "dashboard", element: <ProfilePage /> },
               { path: "task", element: <TaskPage /> },
               { path: "workspaces", element: <WorkspacePage /> },
+              {
+                path: "workspaces/:workspaceId/tasks",
+                element: <TaskPage />,
+              },
+              {
+                path: "workspaces/:workspaceId/members",
+                element: <MemberPage />,
+              },
             ],
           },
         ],

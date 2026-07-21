@@ -31,243 +31,261 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorkSpaceController {
 
-    private final WorkSpaceService workSpaceService;
-    private final ModelMapper modelMapper;
+        private final WorkSpaceService workSpaceService;
+        private final ModelMapper modelMapper;
 
-    /**
-     * Accept both {@code POST /workspace} and {@code POST /workspace/} so
-     * clients (Postman, browsers, frontend) don't trip on the trailing
-     * slash.
-     */
-    @PostMapping(value = {"", "/"})
-    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
-    public ResponseEntity<ApiResponse<WorkSpaceResponse>> createWorkspace(
-            @Valid @RequestBody WorkSpaceRequest workSpaceRequest,
-            @CurrentUser User user) {
+        /**
+         * Accept both {@code POST /workspace} and {@code POST /workspace/} so
+         * clients (Postman, browsers, frontend) don't trip on the trailing
+         * slash.
+         */
+        @PostMapping(value = { "", "/" })
+        @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+        public ResponseEntity<ApiResponse<WorkSpaceResponse>> createWorkspace(
+                        @Valid @RequestBody WorkSpaceRequest workSpaceRequest,
+                        @CurrentUser User user) {
 
-        Workspace workspace = workSpaceService.createWorkspace(workSpaceRequest, user.getId());
+                Workspace workspace = workSpaceService.createWorkspace(workSpaceRequest, user.getId());
 
-        WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
+                WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
 
-        ApiResponse<WorkSpaceResponse> apiResponse = ApiResponse.<WorkSpaceResponse>builder()
-                .success(true)
-                .message("Workspace Created")
-                .data(body)
-                .timestamp(Instant.now())
-                .build();
+                ApiResponse<WorkSpaceResponse> apiResponse = ApiResponse.<WorkSpaceResponse>builder()
+                                .success(true)
+                                .message("Workspace Created")
+                                .data(body)
+                                .timestamp(Instant.now())
+                                .build();
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(apiResponse);
-    }
+                return ResponseEntity
+                                .status(HttpStatus.CREATED)
+                                .body(apiResponse);
+        }
 
-    @PutMapping("/{workspaceId}")
-    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
-    public ResponseEntity<ApiResponse<WorkSpaceResponse>> updateWorkspace(
-            @PathVariable Long workspaceId,
-            @Valid @RequestBody WorkSpaceRequest request,
-            @CurrentUser User currentUser) {
+        @PutMapping("/{workspaceId}")
+        @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+        public ResponseEntity<ApiResponse<WorkSpaceResponse>> updateWorkspace(
+                        @PathVariable Long workspaceId,
+                        @Valid @RequestBody WorkSpaceRequest request,
+                        @CurrentUser User currentUser) {
 
-        Workspace workspace = workSpaceService.updateWorkspace(workspaceId, currentUser.getId(), request);
-        WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
+                Workspace workspace = workSpaceService.updateWorkspace(workspaceId, currentUser.getId(), request);
+                WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
 
-        ApiResponse<WorkSpaceResponse> response = ApiResponse.<WorkSpaceResponse>builder()
-                .success(true)
-                .message("Workspace updated")
-                .data(body)
-                .timestamp(Instant.now())
-                .build();
+                ApiResponse<WorkSpaceResponse> response = ApiResponse.<WorkSpaceResponse>builder()
+                                .success(true)
+                                .message("Workspace updated")
+                                .data(body)
+                                .timestamp(Instant.now())
+                                .build();
 
-        return ResponseEntity.ok(response);
-    }
+                return ResponseEntity.ok(response);
+        }
 
-    @DeleteMapping("/{workspaceId}")
-    @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
-    public ResponseEntity<ApiResponse<Void>> deleteWorkspace(
-            @PathVariable Long workspaceId,
-            @CurrentUser User currentUser) {
+        @DeleteMapping("/{workspaceId}")
+        @PreAuthorize("hasRole('USERS') and principal.emailVerified == true")
+        public ResponseEntity<ApiResponse<Void>> deleteWorkspace(
+                        @PathVariable Long workspaceId,
+                        @CurrentUser User currentUser) {
 
-        workSpaceService.deleteWorkspace(workspaceId, currentUser.getId());
+                workSpaceService.deleteWorkspace(workspaceId, currentUser.getId());
 
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .success(true)
-                .message("Workspace deleted")
-                .timestamp(Instant.now())
-                .build();
+                ApiResponse<Void> response = ApiResponse.<Void>builder()
+                                .success(true)
+                                .message("Workspace deleted")
+                                .timestamp(Instant.now())
+                                .build();
 
-        return ResponseEntity.ok(response);
-    }
+                return ResponseEntity.ok(response);
+        }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<WorkSpaceResponse>> getWorkSpace(@PathVariable String
-                                                                               id) {
+        @GetMapping("/{id}")
+        public ResponseEntity<ApiResponse<WorkSpaceResponse>> getWorkSpace(@PathVariable String id) {
 
-        Long workspaceId = Long.parseLong(id);
+                Long workspaceId = Long.parseLong(id);
 
-        Workspace workspace = workSpaceService.findById(workspaceId);
+                Workspace workspace = workSpaceService.findById(workspaceId);
 
-        WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
+                WorkSpaceResponse body = modelMapper.map(workspace, WorkSpaceResponse.class);
 
-        ApiResponse<WorkSpaceResponse> apiResponse = ApiResponse.<WorkSpaceResponse>builder()
-                .timestamp(Instant.now())
-                .data(body)
-                .success(true)
-                .message("Workspace Found")
-                .build();
+                ApiResponse<WorkSpaceResponse> apiResponse = ApiResponse.<WorkSpaceResponse>builder()
+                                .timestamp(Instant.now())
+                                .data(body)
+                                .success(true)
+                                .message("Workspace Found")
+                                .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+                return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
 
-    }
+        }
 
-    //
-    @GetMapping("/{userId}/workspace")
-    public ResponseEntity<ApiResponse<List<WorkSpaceResponse>>> workSpaceByUserId(@PathVariable String userId) {
+        @GetMapping("/me")
+        @PreAuthorize("isAuthenticated() and principal.emailVerified == true")
+        public ResponseEntity<ApiResponse<List<WorkSpaceResponse>>> myWorkspaces(
+                        @CurrentUser User user) {
 
-        Long refinedUserId = Long.parseLong(userId);
+                List<WorkSpaceResponse> body = workSpaceService.findAllAcceptedByUserId(user.getId())
+                                .stream()
+                                .map(workspace -> modelMapper.map(workspace, WorkSpaceResponse.class))
+                                .toList();
 
-        List<Workspace> workspaceList = workSpaceService.findAllByOwnerId(refinedUserId);
+                ApiResponse<List<WorkSpaceResponse>> response = ApiResponse.<List<WorkSpaceResponse>>builder()
+                                .message("Workspace List")
+                                .success(true)
+                                .data(body)
+                                .timestamp(Instant.now())
+                                .build();
 
-        List<WorkSpaceResponse> body = workspaceList.stream()
-                .map(workspace -> modelMapper.map(workspace, WorkSpaceResponse.class)).toList();
+                return ResponseEntity.ok(response);
+        }
 
-        ApiResponse<List<WorkSpaceResponse>> apiResponse = ApiResponse.<List<WorkSpaceResponse>>builder()
-                .message("Workspace List")
-                .success(true)
-                .data(body)
-                .timestamp(Instant.now())
-                .build();
+        //
+        @GetMapping("/{userId}/workspace")
+        public ResponseEntity<ApiResponse<List<WorkSpaceResponse>>> workSpaceByUserId(@PathVariable String userId) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+                Long refinedUserId = Long.parseLong(userId);
 
-    }
+                List<Workspace> workspaceList = workSpaceService.findAllByOwnerId(refinedUserId);
 
-    @PatchMapping("/{workspaceId}/members/invite/{userId}")
-    @PreAuthorize("isAuthenticated() and principal.emailVerified == true")
-    public ResponseEntity<ApiResponse<Void>> inviteMember(
-            @PathVariable Long workspaceId,
-            @PathVariable Long userId,
-            @CurrentUser User inviter) {
+                List<WorkSpaceResponse> body = workspaceList.stream()
+                                .map(workspace -> modelMapper.map(workspace, WorkSpaceResponse.class)).toList();
 
-        log.info("User id={} inviting user id={} into workspace id={}",
-                inviter.getId(), userId, workspaceId);
+                ApiResponse<List<WorkSpaceResponse>> apiResponse = ApiResponse.<List<WorkSpaceResponse>>builder()
+                                .message("Workspace List")
+                                .success(true)
+                                .data(body)
+                                .timestamp(Instant.now())
+                                .build();
 
-        workSpaceService.addMembersToWorkspace(workspaceId, userId, inviter.getId());
+                return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
 
-        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
-                .timestamp(Instant.now())
-                .message("Invitation sent")
-                .success(true)
-                .build();
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
-    }
+        @PatchMapping("/{workspaceId}/members/invite/{userId}")
+        @PreAuthorize("isAuthenticated() and principal.emailVerified == true")
+        public ResponseEntity<ApiResponse<Void>> inviteMember(
+                        @PathVariable Long workspaceId,
+                        @PathVariable Long userId,
+                        @CurrentUser User inviter) {
 
-    @PatchMapping("/{workspaceId}/members/accept")
-    public ResponseEntity<ApiResponse<Void>> acceptMemberRequest(@PathVariable Long workspaceId,
-                                                                 @CurrentUser User user) {
+                log.info("User id={} inviting user id={} into workspace id={}",
+                                inviter.getId(), userId, workspaceId);
 
-        Long userId = user.getId();
+                workSpaceService.addMembersToWorkspace(workspaceId, userId, inviter.getId());
 
-        workSpaceService.acceptWorkSpaceJoining(workspaceId, userId);
+                ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                                .timestamp(Instant.now())
+                                .message("Invitation sent")
+                                .success(true)
+                                .build();
 
-        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
-                .timestamp(Instant.now())
-                .message("Request Accepted")
-                .success(true)
-                .build();
+                return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
-    }
+        @PatchMapping("/{workspaceId}/members/accept")
+        public ResponseEntity<ApiResponse<Void>> acceptMemberRequest(@PathVariable Long workspaceId,
+                        @CurrentUser User user) {
 
-    //
-    @PatchMapping("/{workspaceId}/members/reject")
-    public ResponseEntity<ApiResponse<Void>> rejectMemberMemberRequest(
-            @PathVariable Long workspaceId,
-            @CurrentUser User user
-    ) {
-        Long userId = user.getId();
+                Long userId = user.getId();
 
-        workSpaceService.rejectWorkSpaceJoining(workspaceId, userId);
+                workSpaceService.acceptWorkSpaceJoining(workspaceId, userId);
 
-        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
-                .timestamp(Instant.now())
-                .message("Successfully rejected request")
-                .success(true)
-                .build();
+                ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                                .timestamp(Instant.now())
+                                .message("Request Accepted")
+                                .success(true)
+                                .build();
 
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+                return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        }
 
-    }
+        //
+        @PatchMapping("/{workspaceId}/members/reject")
+        public ResponseEntity<ApiResponse<Void>> rejectMemberMemberRequest(
+                        @PathVariable Long workspaceId,
+                        @CurrentUser User user) {
+                Long userId = user.getId();
 
-    //
-    @PatchMapping("/{workspaceId}/members/role/{userId}")
-    public ResponseEntity<ApiResponse<Void>> changeMemberRole(@PathVariable Long workspaceId,
-                                                              @PathVariable Long userId,
-                                                              @CurrentUser User user,
-                                                              @RequestBody ChangeRoleRequest changeRoleRequest
-    ) {
+                workSpaceService.rejectWorkSpaceJoining(workspaceId, userId);
 
+                ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                                .timestamp(Instant.now())
+                                .message("Successfully rejected request")
+                                .success(true)
+                                .build();
 
-        WorkspaceRole role = changeRoleRequest.getRole();
-        Long ownerUserId = user.getId();
+                return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
 
-        workSpaceService.editWorkspaceMemberRole(ownerUserId, userId, workspaceId, role);
+        }
 
-        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
-                .timestamp(Instant.now())
-                .message("Successfully updated role")
-                .success(true)
-                .build();
+        //
+        @PatchMapping("/{workspaceId}/members/role/{userId}")
+        public ResponseEntity<ApiResponse<Void>> changeMemberRole(@PathVariable Long workspaceId,
+                        @PathVariable Long userId,
+                        @CurrentUser User user,
+                        @RequestBody ChangeRoleRequest changeRoleRequest) {
 
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+                WorkspaceRole role = changeRoleRequest.getRole();
+                Long ownerUserId = user.getId();
 
+                workSpaceService.editWorkspaceMemberRole(ownerUserId, userId, workspaceId, role);
 
-    }
+                ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
+                                .timestamp(Instant.now())
+                                .message("Successfully updated role")
+                                .success(true)
+                                .build();
 
-    //
-    @GetMapping("/{workspaceId}/members/{userId}")
-    public ResponseEntity<ApiResponse<Page<WorkspaceMember>>> inviteMember(@PathVariable Long workspaceId,
+                return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
 
-                                                                           @RequestParam(defaultValue = "10") int size,
-                                                                           @RequestParam(defaultValue = "0") int page) {
+        }
 
-        Pageable pageable = PageRequest.of(page, size);
+        //
+        @GetMapping("/{workspaceId}/members")
+        @PreAuthorize("isAuthenticated() and principal.emailVerified == true")
+        public ResponseEntity<ApiResponse<Page<WorkspaceMember>>> listMembers(@PathVariable Long workspaceId,
 
-        Page<WorkspaceMember> member = workSpaceService.findMembersByWorkSpaceId(workspaceId, pageable);
+                        @RequestParam(defaultValue = "10") int size,
+                        @RequestParam(defaultValue = "0") int page) {
 
-        ApiResponse<Page<WorkspaceMember>> members = ApiResponse.<Page<WorkspaceMember>>builder()
-                .timestamp(Instant.now())
-                .message("Member List")
-                .success(true)
-                .data(member)
-                .build();
+                Pageable pageable = PageRequest.of(page, size);
 
-        return ResponseEntity.status(HttpStatus.OK).body(members);
+                Page<WorkspaceMember> member = workSpaceService.findMembersByWorkSpaceId(workspaceId, pageable);
 
-    }
+                ApiResponse<Page<WorkspaceMember>> members = ApiResponse.<Page<WorkspaceMember>>builder()
+                                .timestamp(Instant.now())
+                                .message("Member List")
+                                .success(true)
+                                .data(member)
+                                .build();
 
-//     @PatchMapping("/{workspaceId}/members/{userId}/remove")
-//     public ResponseEntity inviteMember(@CurrentUser User user, @PathVariable Long userId) {
-//
-//        Long uerId  = user.getId();
-//
-////        workSpaceService.r
-//
-//
-//
-//     }
-//    //
-//     @PatchMapping("/{workspaceId}/members/{userId}/leave")
-//     public ResponseEntity inviteMember() {
-//
-//     }
+                return ResponseEntity.status(HttpStatus.OK).body(members);
 
-//     @PutMapping("/{workspaceId}")
-//    public ResponseEntity updateWorkSpce(@PathVariable Long workspaceId, @RequestBody WorkSpaceRequest workSpaceRequest) {
-//
-//
-//
-//     }
-    //
+        }
+
+        // @PatchMapping("/{workspaceId}/members/{userId}/remove")
+        // public ResponseEntity inviteMember(@CurrentUser User user, @PathVariable Long
+        // userId) {
+        //
+        // Long uerId = user.getId();
+        //
+        //// workSpaceService.r
+        //
+        //
+        //
+        // }
+        // //
+        // @PatchMapping("/{workspaceId}/members/{userId}/leave")
+        // public ResponseEntity inviteMember() {
+        //
+        // }
+
+        // @PutMapping("/{workspaceId}")
+        // public ResponseEntity updateWorkSpce(@PathVariable Long workspaceId,
+        // @RequestBody WorkSpaceRequest workSpaceRequest) {
+        //
+        //
+        //
+        // }
+        //
 
 }

@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { useParams } from "react-router-dom";
 import {
   CheckCircle2,
   Clock,
@@ -30,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // import { CreateTaskDialog } from "@/components/models/CreateTaskDialog";
 import { useCreateTaskStore } from "@/store/createTaskStore";
+import { useActiveWorkspaceStore } from "@/store/activeWorkspaceStore";
 import { CreateTaskDialog } from "@/components/models/CreateTaskDialog";
 
 // --- Types -----------------------------------------------------------------
@@ -307,7 +310,7 @@ function EmptyState({
   title,
   description,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
 }) {
@@ -406,6 +409,10 @@ function FiltersBar({
 // --- Page ------------------------------------------------------------------
 
 function TaskPage() {
+  const { workspaceId } = useParams();
+  const activeWorkspace = useActiveWorkspaceStore(
+    (state) => state.activeWorkspace,
+  );
   const tasks = TASKS;
   const counts = useCounts(tasks);
   const openCreateTask = useCreateTaskStore((s) => s.setOpen);
@@ -463,7 +470,9 @@ function TaskPage() {
             Tasks
           </h1>
           <p className="mt-1 text-[14px] text-[#6b7280]">
-            Plan, prioritize, and ship work across your workspace.
+            {workspaceId && activeWorkspace?.id === workspaceId
+              ? `Plan, prioritize, and ship work in ${activeWorkspace.name}.`
+              : "Plan, prioritize, and ship work across your workspace."}
           </p>
         </div>
         <Button

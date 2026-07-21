@@ -40,6 +40,14 @@ public class WorkSpaceService {
         return workSpaceRepository.findAllByOwnerId(ownerId);
     }
 
+    public List<Workspace> findAllAcceptedByUserId(Long userId) {
+        return workSpaceMemberRepository
+                .findAllByUserIdAndJoiningStatus(userId, JoiningStatus.ACCEPTED)
+                .stream()
+                .map(WorkspaceMember::getWorkspace)
+                .toList();
+    }
+
     public Workspace findById(Long id) {
         return workSpaceRepository.findById(id)
                 .orElseThrow(() -> new BadException("Workspace not found"));
@@ -62,8 +70,8 @@ public class WorkSpaceService {
 
         String refinedDescription = workSpaceRequest.getDescription() == null
                 || workSpaceRequest.getDescription().isBlank()
-                ? null
-                : workSpaceRequest.getDescription().trim();
+                        ? null
+                        : workSpaceRequest.getDescription().trim();
 
         Workspace workspace = Workspace.builder()
                 .name(refinedName)
@@ -136,7 +144,8 @@ public class WorkSpaceService {
      * Verify that the given user is the {@link WorkspaceRole#OWNER owner} of the
      * workspace. Throws {@link BadException} (mapped to HTTP 400 by
      * {@link com.example.taskmanagement.taskmanagement.exception.GlobalExceptionHandler})
-     * if the user is not a member at all, or if they are a member but not the owner.
+     * if the user is not a member at all, or if they are a member but not the
+     * owner.
      */
     public void validateOwner(Long userId, Long workSpaceId) {
 
@@ -193,12 +202,11 @@ public class WorkSpaceService {
 
     @Transactional
     public WorkspaceMember editWorkspaceMemberRole(Long ownerId, Long userId, Long workspaceId,
-                                                   WorkspaceRole workspaceRole) {
+            WorkspaceRole workspaceRole) {
         validateOwner(ownerId, workspaceId);
 
         Workspace workspace = workSpaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new BadException("Workspace not found"));
-
 
         WorkspaceMember existing = workSpaceMemberRepository
                 .findByWorkspaceIdAndUserId(workspaceId, userId)
@@ -269,17 +277,19 @@ public class WorkSpaceService {
         return workSpaceMemberRepository.save(workspaceMember);
     }
 
-//    @Transactional
-//    public Workspace updateWorkspace(Long userId, Long workSpaceId, Workspace workspace) {
-//
-//
-//        validateOwner(userId, workSpaceId);
-//
-//        String title = workspace.getName().trim();
-//        String description = !workspace.getDescription().isBlank() ? workspace.getDescription() : "";
-//
-//
-//
-//    }
+    // @Transactional
+    // public Workspace updateWorkspace(Long userId, Long workSpaceId, Workspace
+    // workspace) {
+    //
+    //
+    // validateOwner(userId, workSpaceId);
+    //
+    // String title = workspace.getName().trim();
+    // String description = !workspace.getDescription().isBlank() ?
+    // workspace.getDescription() : "";
+    //
+    //
+    //
+    // }
 
 }
